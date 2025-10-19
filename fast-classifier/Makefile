@@ -32,7 +32,7 @@ define KernelPackage/fast-classifier/Default
 	   CONFIG_NF_CONNTRACK_CHAIN_EVENTS=y \
 	   CONFIG_NF_CONNTRACK_MARK=y \
 	   CONFIG_XFRM=y
-  CONFLICTS:=kmod-shortcut-fe-drv kmod-shortcut-fe-cm
+  CONFLICTS:=kmod-shortcut-fe-drv
 endef
 
 define KernelPackage/fast-classifier
@@ -67,6 +67,8 @@ Example user space program that communicates with fast
 classifier kernel module
 endef
 
+HAVE_ECM:=$(CONFIG_PACKAGE_kmod-qca-nss-ecm-premium)$(CONFIG_PACKAGE_kmod-qca-nss-ecm-noload)$(CONFIG_PACKAGE_kmod-qca-nss-ecm-premium-noload)$(CONFIG_PACKAGE_kmod-qca-nss-ecm-standard)
+
 define Build/Compile/kmod
 	+$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
 		$(KERNEL_MAKE_FLAGS) \
@@ -74,6 +76,7 @@ define Build/Compile/kmod
 		M="$(PKG_BUILD_DIR)" \
 		CONFIG_FAST_CLASSIFIER=m \
 		EXTRA_CFLAGS+="-DSFE_SUPPORT_IPV6" \
+		$(if $(HAVE_ECM),EXTRA_CFLAGS+="-DCONFIG_SFE_ECM" CONFIG_SFE_ECM=y,) \
 		modules
 endef
 
